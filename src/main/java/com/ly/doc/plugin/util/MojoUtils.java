@@ -26,6 +26,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ly.doc.plugin.config.ApiConfigWrapper;
 import com.power.common.util.FileUtil;
 import com.power.common.util.StringUtil;
 import com.ly.doc.model.*;
@@ -82,7 +83,7 @@ public class MojoUtils {
         try {
             ClassLoader classLoader = ClassLoaderUtil.getRuntimeClassLoader(project);
             String data = FileUtil.getFileContent(new FileInputStream(configFile));
-            ApiConfig apiConfig = GSON.fromJson(data, ApiConfig.class);
+            ApiConfig apiConfig = GSON.fromJson(data, ApiConfigWrapper.class);
             if (StringUtil.isEmpty(apiConfig.getCodePath())) {
                 apiConfig.setCodePath(GlobalConstants.SOURCE_CODE_PATH);
             }

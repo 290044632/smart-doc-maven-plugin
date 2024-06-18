@@ -6,7 +6,7 @@
 
     <groupId>com.ly.smart-doc</groupId>
     <artifactId>smart-doc-maven-plugin</artifactId>
-    <version>3.0.5</version>
+    <version>3.0.5.20240618.Alpha</version>
     <packaging>maven-plugin</packaging>
 
     <name>smart-doc-maven-plugin</name>
@@ -73,6 +73,11 @@
             <groupId>com.ly.smart-doc</groupId>
             <artifactId>smart-doc</artifactId>
             <version>3.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.6</version>
         </dependency>
     </dependencies>
     <build>
@@ -166,6 +171,30 @@
                     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
             </distributionManagement>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>releases</id>
+                    <name>Thirdparty Dev Repository</name>
+                    <url>http://192.168.0.179:8081/nexus/content/repositories/3rd_party_dev/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>releases</id>
+                    <name>Thirdparty Repository</name>
+                    <url>http://192.168.0.179:8081/nexus/content/repositories/thirdparty/</url>
+                </repository>
+            </distributionManagement>
+            <repositories>
+                <repository>
+                    <id>thirdparty</id>
+                    <url>http://192.168.0.179:8081/nexus/content/groups/public/</url>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 </project>

@@ -25,15 +25,13 @@ package com.ly.doc.plugin.mojo;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import com.ly.doc.plugin.doc.server.DocServerFactory;
+import com.ly.doc.plugin.doc.server.IDocServer;
 import com.ly.doc.plugin.util.ArtifactFilterUtil;
 import com.ly.doc.plugin.util.ClassLoaderUtil;
 import com.ly.doc.plugin.util.FileUtil;
@@ -75,6 +73,7 @@ import org.apache.maven.shared.dependency.graph.DependencyNode;
 
 /**
  * reference https://github.com/jboz/living-documentation
+ *
  * @author yu 2020/1/8.
  */
 public abstract class BaseDocsGeneratorMojo extends AbstractMojo {
@@ -117,7 +116,7 @@ public abstract class BaseDocsGeneratorMojo extends AbstractMojo {
     private String tornaToken;
 
     public abstract void executeMojo(ApiConfig apiConfig, JavaProjectBuilder javaProjectBuilder)
-        throws MojoExecutionException, MojoFailureException;
+            throws MojoExecutionException, MojoFailureException;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -128,13 +127,13 @@ public abstract class BaseDocsGeneratorMojo extends AbstractMojo {
         if (Objects.nonNull(configFile) && !configFile.exists()) {
             // Throwing an exception will cause an error in the multi-module maven project build.
             this.getLog().warn("Can't find config file: " + configFile.getName() + " from [" + project.getName()
-                + "],If it is a non-web module, please ignore the error.");
+                    + "],If it is a non-web module, please ignore the error.");
             return;
         }
         this.getLog().info("------------------------------------------------------------------------");
         this.getLog().info("Smart-doc Start preparing sources at: " + DateTimeUtil.nowStrTime());
         projectArtifacts = project.getArtifacts().stream().map(moduleName -> moduleName.getGroupId() + ":" + moduleName.getArtifactId())
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         ApiConfig apiConfig = MojoUtils.buildConfig(configFile, projectName, project, projectBuilder, session, projectArtifacts, increment, getLog());
         if (Objects.isNull(apiConfig)) {
             this.getLog().info(GlobalConstants.ERROR_MSG);
@@ -166,6 +165,10 @@ public abstract class BaseDocsGeneratorMojo extends AbstractMojo {
             getLog().info("API documentation is output to => " + apiConfig.getOutPath().replace("\\", "/"));
         }
         this.executeMojo(apiConfig, javaProjectBuilder);
+
+        IDocServer docServer = new DocServerFactory(apiConfig, this.project).getDocServer();
+        System.out.println(docServer);
+        docServer.run();
     }
 
 
@@ -210,7 +213,7 @@ public abstract class BaseDocsGeneratorMojo extends AbstractMojo {
                     return;
                 }
                 Artifact sourcesArtifact = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(), artifact.getType(), "sources");
+                        artifact.getArtifactId(), artifact.getVersion(), artifact.getType(), "sources");
                 if (RegexUtil.isMatches(includes, artifactName)) {
                     this.projectArtifacts.add(artifactName);
                     this.loadSourcesDependency(javaDocBuilder, sourcesArtifact);
